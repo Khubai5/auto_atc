@@ -18,7 +18,7 @@ A minimal FastAPI backend that matches the Flutter app requirements for animal d
 
 2. **Run the server:**
    ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
    Or run directly:
