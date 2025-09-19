@@ -1,0 +1,33 @@
+# Cattle Pose Estimation Dataset Configuration
+# YOLOv8 Pose format for cow pose estimation with 12 keypoints
+
+# Dataset paths
+path: datasets/cow_pose  # dataset root dir
+train: images/train      # train images (relative to 'path')
+val: images/val          # val images (relative to 'path')
+test: images/test        # test images (relative to 'path')
+
+# Keypoint configuration
+kpt_shape: [12, 3]       # number of keypoints, number of coordinates per keypoint (x, y)
+flip_idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  # keypoint flip indices (for horizontal flip augmentation)
+
+# Class names
+names:
+  0: cow
+
+# Keypoint names (for reference - not used by YOLO but helpful for debugging)
+# 0: head_top
+# 1: head_bottom  
+# 2: neck
+# 3: shoulder
+# 4: elbow
+# 5: wrist
+# 6: hip
+# 7: knee
+# 8: ankle
+# 9: tail_root
+# 10: tail_mid
+# 11: tail_tip
+
+
+

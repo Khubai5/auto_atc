@@ -16,7 +16,13 @@ def get_client() -> MongoClient:
     """Get MongoDB client instance"""
     global _client
     if _client is None:
-        _client = MongoClient(MONGO_URI)
+        # Fail fast if Mongo isn't reachable to avoid request stalls
+        _client = MongoClient(
+            MONGO_URI,
+            serverSelectionTimeoutMS=2000,
+            connectTimeoutMS=2000,
+            socketTimeoutMS=2000,
+        )
     return _client
 
 def get_db() -> Database:

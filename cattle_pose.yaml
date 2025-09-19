@@ -1,0 +1,14 @@
+# Dataset config for Cow Pose Estimation
+# Location: auto_atc/cattle_pose.yaml
+
+path: datasets/cow_pose   # dataset root
+
+train: images/train      # training images
+val: images/val          # validation images
+test: images/test        # test images (10% split)
+
+kpt_shape: [12, 3]       # 12 keypoints, 2D
+flip_idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]  # all indices
+
+names:
+  0: cow
