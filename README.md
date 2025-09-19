@@ -6,7 +6,7 @@ A minimal FastAPI backend that matches the Flutter app requirements for animal d
 
 - **POST /upload** endpoint that accepts animal data with image
 - Base64 image decoding and local storage
-- Mock scoring system with verdict classification
+- Scoring system with verdict classification
 - CORS support for Flutter app integration
 
 ## Setup
