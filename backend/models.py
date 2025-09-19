@@ -38,7 +38,7 @@ class AnimalRecord(BaseModel):
     weight: float
     farmerID: Optional[str] = None
     views: List[View] = Field(default_factory=list)
-    measurements: Dict[str, float] = Field(default_factory=dict)
+    measurements: Dict[str, Optional[float]] = Field(default_factory=dict)
     score: float = Field(ge=0.0, le=10.0, default=0.0)
     verdict: str = "Poor"
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -83,7 +83,7 @@ class AnimalResponse(BaseModel):
     weight: float
     farmerID: Optional[str] = None
     views: List[View] = Field(default_factory=list)
-    measurements: Dict[str, float] = Field(default_factory=dict)
+    measurements: Dict[str, Optional[float]] = Field(default_factory=dict)
     score: float = 0.0
     verdict: str = "Poor"
     timestamp: datetime

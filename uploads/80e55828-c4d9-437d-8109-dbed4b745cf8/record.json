@@ -1,0 +1,152 @@
+{
+  "animalID": "80e55828-c4d9-437d-8109-dbed4b745cf8",
+  "breed": "Unknown",
+  "weight": 0.0,
+  "score": 0.0,
+  "verdict": "Poor",
+  "measurements": {
+    "withers_height_cm": 24.020000457763672,
+    "body_length_cm": 33.4900016784668,
+    "rump_angle_deg": null,
+    "rear_leg_set_angle_deg": null
+  },
+  "timestamp": "2025-09-19T22:53:14.787852",
+  "views": [
+    {
+      "viewType": "front",
+      "filename": "front_7e8f00f2-fcdd-42bc-a3cb-74c21f17823b.jpg",
+      "uploaded_at": "2025-09-19T22:52:35.054798",
+      "confidence": 0.0,
+      "cm_per_px": 0.19607843458652496,
+      "keypoints": [],
+      "measurements": {},
+      "trait_scores": {},
+      "score": null,
+      "verdict": "N/A",
+      "debug_image_path": null,
+      "aruco_detected": true,
+      "marker_size_px": {
+        "width_px": 51.0,
+        "height_px": 51.0,
+        "avg_side_px": 51.0
+      }
+    },
+    {
+      "viewType": "side",
+      "filename": "side_6ffb108f-b1a4-4495-ad39-28ef5da657d1.jpg",
+      "uploaded_at": "2025-09-19T22:52:52.357756",
+      "confidence": 0.527,
+      "cm_per_px": 0.022371308878064156,
+      "keypoints": [
+        {
+          "name": "muzzle",
+          "x": 3492.56640625,
+          "y": 1670.676025390625,
+          "confidence": 0.5207862854003906
+        },
+        {
+          "name": "left_eye",
+          "x": 3402.786865234375,
+          "y": 1375.8575439453125,
+          "confidence": 0.186429962515831
+        },
+        {
+          "name": "right_eye",
+          "x": 3372.9697265625,
+          "y": 1243.5023193359375,
+          "confidence": 0.25446993112564087
+        },
+        {
+          "name": "neck",
+          "x": 3034.098876953125,
+          "y": 1270.8406982421875,
+          "confidence": 0.5756865739822388
+        },
+        {
+          "name": "front_left_hoof",
+          "x": 2447.200927734375,
+          "y": 2344.52783203125,
+          "confidence": 0.7666870355606079
+        },
+        {
+          "name": "front_right_hoof",
+          "x": 2373.916015625,
+          "y": 2372.772216796875,
+          "confidence": 0.7612079977989197
+        },
+        {
+          "name": "rear_left_hoof",
+          "x": 1021.416748046875,
+          "y": 2486.2607421875,
+          "confidence": 0.786109447479248
+        },
+        {
+          "name": "rear_right_hoof",
+          "x": 955.7705078125,
+          "y": 2479.386474609375,
+          "confidence": 0.7375859022140503
+        },
+        {
+          "name": "backbone",
+          "x": 1657.6533203125,
+          "y": 682.1131591796875,
+          "confidence": 0.7301657199859619
+        },
+        {
+          "name": "tail_root",
+          "x": 1866.0816650390625,
+          "y": 894.3919677734375,
+          "confidence": 0.07447022199630737
+        },
+        {
+          "name": "back_center",
+          "x": 2025.2633056640625,
+          "y": 1449.9034423828125,
+          "confidence": 0.03785746544599533
+        },
+        {
+          "name": "tail_tip",
+          "x": 1606.4537353515625,
+          "y": 1284.814453125,
+          "confidence": 0.8969584107398987
+        }
+      ],
+      "measurements": {
+        "withers_height_cm": 24.020000457763672,
+        "body_length_cm": 33.4900016784668,
+        "rump_angle_deg": null,
+        "rear_leg_set_angle_deg": null
+      },
+      "trait_scores": {
+        "height": 0.0,
+        "body_length": 0.0,
+        "rump": null,
+        "rear_leg": null
+      },
+      "score": 0.0,
+      "verdict": "Poor",
+      "debug_image_path": "uploads\\debug\\80e55828-c4d9-437d-8109-dbed4b745cf8_side.png",
+      "aruco_detected": true,
+      "marker_size_px": {
+        "width_px": 448.0,
+        "height_px": 448.0,
+        "avg_side_px": 447.0011291503906
+      }
+    },
+    {
+      "viewType": "rear",
+      "filename": "rear_c31e5af3-cce9-443c-9121-efadd57569df.jpg",
+      "uploaded_at": "2025-09-19T22:53:10.162960",
+      "confidence": 0.0,
+      "cm_per_px": null,
+      "keypoints": [],
+      "measurements": {},
+      "trait_scores": {},
+      "score": null,
+      "verdict": "N/A",
+      "debug_image_path": null,
+      "aruco_detected": false,
+      "marker_size_px": null
+    }
+  ]
+}

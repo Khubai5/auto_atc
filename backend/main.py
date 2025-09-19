@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 import uuid
 from datetime import datetime
@@ -34,6 +35,57 @@ TRAIT_WEIGHTS = {
     "rump": 0.20,
     "rear_leg": 0.20,
 }
+
+FALLBACK_RECORD_FILENAME = "record.json"
+
+
+def _record_file_path(animal_id: str) -> str:
+    return os.path.join("uploads", animal_id, FALLBACK_RECORD_FILENAME)
+
+
+def _json_default(value: Any):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
+
+
+def _sanitize_record_for_file(record: Dict[str, Any]) -> Dict[str, Any]:
+    cleaned: Dict[str, Any] = {k: v for k, v in record.items() if k != "_id"}
+
+    timestamp = cleaned.get("timestamp")
+    if isinstance(timestamp, datetime):
+        cleaned["timestamp"] = timestamp.isoformat()
+
+    views: List[Dict[str, Any]] = []
+    for view in cleaned.get("views", []):
+        view_dict = dict(view)
+        uploaded_at = view_dict.get("uploaded_at")
+        if isinstance(uploaded_at, datetime):
+            view_dict["uploaded_at"] = uploaded_at.isoformat()
+        views.append(view_dict)
+    cleaned["views"] = views
+
+    return cleaned
+
+
+def _load_record_from_file(animal_id: str) -> Optional[Dict[str, Any]]:
+    path = _record_file_path(animal_id)
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as infile:
+            return json.load(infile)
+    except Exception:
+        return None
+
+
+def _write_record_to_file(record: Dict[str, Any]) -> None:
+    path = _record_file_path(record["animalID"])
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    sanitized = _sanitize_record_for_file(record)
+    with open(path, "w", encoding="utf-8") as outfile:
+        json.dump(sanitized, outfile, default=_json_default, ensure_ascii=True, indent=2)
+
 
 
 def get_verdict(score: Optional[float]) -> str:
@@ -115,57 +167,96 @@ def _prepare_view_dict(view: View) -> Dict[str, Any]:
 
 
 def _save_view_to_db(animal_id: str, view: View, breed: str, weight: float) -> None:
+    collection = None
+    existing: Dict[str, Any] = {}
+
     try:
         collection = get_animals_collection()
         existing = collection.find_one({"animalID": animal_id}) or {}
-        views = existing.get("views", [])
-        new_views = views + [_prepare_view_dict(view)]
-        
-        # Only use side view for final scoring
-        side_measurements = _get_side_view_measurements(new_views)
-        side_score = _get_side_view_score(new_views)
-        side_aruco_detected = _check_side_view_aruco(new_views)
-        
-        # Set final score and verdict based only on side view
-        if side_score is not None and side_aruco_detected:
-            final_score = side_score
-            final_verdict = get_verdict(final_score)
-        else:
-            final_score = 0.0
-            final_verdict = "Poor"
-
-        update_doc = {
-            "$set": {
-                "animalID": animal_id,
-                "breed": breed,
-                "weight": weight,
-                "score": final_score,
-                "verdict": final_verdict,
-                "measurements": side_measurements,
-                "timestamp": datetime.utcnow(),
-            },
-            "$push": {
-                "views": _prepare_view_dict(view),
-            },
-        }
-
-        collection.update_one({"animalID": animal_id}, update_doc, upsert=True)
     except Exception:
-        # Swallow database errors so that inference still succeeds
-        pass
+        existing = _load_record_from_file(animal_id) or {}
+        collection = None
+
+    existing_views = list(existing.get("views", []))
+    new_view_dict = _prepare_view_dict(view)
+    new_views = existing_views + [new_view_dict]
+
+    # Only use side view for final scoring
+    side_measurements = _get_side_view_measurements(new_views)
+    side_score = _get_side_view_score(new_views)
+    side_aruco_detected = _check_side_view_aruco(new_views)
+
+    # Set final score and verdict based only on side view
+    if side_score is not None and side_aruco_detected:
+        final_score = side_score
+        final_verdict = get_verdict(final_score)
+    else:
+        final_score = 0.0
+        final_verdict = "Poor"
+
+    timestamp = datetime.utcnow()
+    update_values: Dict[str, Any] = {
+        "animalID": animal_id,
+        "breed": breed,
+        "weight": weight,
+        "score": final_score,
+        "verdict": final_verdict,
+        "measurements": side_measurements,
+        "timestamp": timestamp,
+    }
+
+    try:
+        if collection is not None:
+            collection.update_one(
+                {"animalID": animal_id},
+                {"$set": update_values, "$push": {"views": new_view_dict}},
+                upsert=True,
+            )
+    except Exception:
+        collection = None
+
+    record_for_file: Dict[str, Any] = dict(existing)
+    record_for_file.setdefault("animalID", animal_id)
+    record_for_file.update(update_values)
+    record_for_file["views"] = new_views
+
+    _write_record_to_file(record_for_file)
 
 
-def _finalize_record(animal_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-    collection = get_animals_collection()
-    animal_doc = collection.find_one({"animalID": animal_id})
-    if not animal_doc:
-        raise HTTPException(status_code=404, detail="Animal not found")
+def _finalize_record(
+    animal_id: str, updates: Dict[str, Any], existing_record: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    record: Optional[Dict[str, Any]] = None
 
-    collection.update_one({"animalID": animal_id}, {"$set": updates})
-    animal_doc.update(updates)
-    if "_id" in animal_doc:
-        animal_doc["_id"] = str(animal_doc["_id"])
-    return animal_doc
+    try:
+        collection = get_animals_collection()
+        base_record: Optional[Dict[str, Any]]
+        if existing_record is not None and "_id" in existing_record:
+            base_record = existing_record
+        else:
+            base_record = collection.find_one({"animalID": animal_id})
+
+        if base_record is not None:
+            collection.update_one({"animalID": animal_id}, {"$set": updates})
+            record = dict(base_record)
+            record.update(updates)
+    except Exception:
+        record = None
+
+    if record is None:
+        fallback_record = existing_record or _load_record_from_file(animal_id)
+        if not fallback_record:
+            raise HTTPException(status_code=404, detail="Animal not found")
+        record = dict(fallback_record)
+        record.update(updates)
+
+    record.setdefault("animalID", animal_id)
+    _write_record_to_file(record)
+
+    if "_id" in record:
+        record["_id"] = str(record["_id"])
+
+    return record
 
 
 @app.post("/upload", response_model=AnimalUploadResponse)
@@ -331,18 +422,26 @@ async def upload_animal_data(data: AnimalUploadRequest):
 async def finalize_animal_record(payload: AnimalFinalizeRequest):
     """Finalize an animal record by updating details and returning the latest snapshot."""
     try:
-        collection = get_animals_collection()
-        animal_doc = collection.find_one({"animalID": payload.animalID})
+        animal_doc: Optional[Dict[str, Any]] = None
+        try:
+            collection = get_animals_collection()
+            animal_doc = collection.find_one({"animalID": payload.animalID})
+        except Exception:
+            animal_doc = None
+
+        if not animal_doc:
+            animal_doc = _load_record_from_file(payload.animalID)
+
         if not animal_doc:
             raise HTTPException(status_code=404, detail="Animal not found")
 
         views = animal_doc.get("views", [])
-        
+
         # Only use side view for final scoring
         side_measurements = _get_side_view_measurements(views)
         side_score = _get_side_view_score(views)
         side_aruco_detected = _check_side_view_aruco(views)
-        
+
         # Set final score and verdict based only on side view
         if side_score is not None and side_aruco_detected:
             final_score = side_score
@@ -350,7 +449,7 @@ async def finalize_animal_record(payload: AnimalFinalizeRequest):
         else:
             final_score = 0.0
             final_verdict = "Poor"
-        
+
         updates: Dict[str, Any] = {
             "breed": payload.breed,
             "weight": payload.weight,
@@ -362,7 +461,7 @@ async def finalize_animal_record(payload: AnimalFinalizeRequest):
         if payload.farmerID:
             updates["farmerID"] = payload.farmerID
 
-        record = _finalize_record(payload.animalID, updates)
+        record = _finalize_record(payload.animalID, updates, existing_record=animal_doc)
         return AnimalResponse(**record)
 
     except HTTPException:

@@ -1,0 +1,57 @@
+{
+  "animalID": "3fd995b6-ed63-412d-9b1b-e196c00e4a68",
+  "breed": "cow",
+  "weight": 60.0,
+  "score": 0.0,
+  "verdict": "Poor",
+  "measurements": {},
+  "timestamp": "2025-09-19T22:54:31.996607",
+  "views": [
+    {
+      "viewType": "front",
+      "filename": "front_6c146685-2e3f-4ff8-abd7-da23817be876.jpg",
+      "uploaded_at": "2025-09-19T22:53:45.607351",
+      "confidence": 0.0,
+      "cm_per_px": null,
+      "keypoints": [],
+      "measurements": {},
+      "trait_scores": {},
+      "score": null,
+      "verdict": "N/A",
+      "debug_image_path": null,
+      "aruco_detected": false,
+      "marker_size_px": null
+    },
+    {
+      "viewType": "side",
+      "filename": "side_3d46a514-d430-4917-81a4-443214baef93.jpg",
+      "uploaded_at": "2025-09-19T22:53:57.424629",
+      "confidence": 0.0,
+      "cm_per_px": null,
+      "keypoints": [],
+      "measurements": {},
+      "trait_scores": {},
+      "score": null,
+      "verdict": "Poor",
+      "debug_image_path": null,
+      "aruco_detected": false,
+      "marker_size_px": null
+    },
+    {
+      "viewType": "rear",
+      "filename": "rear_c1bb4a30-81e2-4412-88bd-7c41b4ab37cd.jpg",
+      "uploaded_at": "2025-09-19T22:54:11.752639",
+      "confidence": 0.0,
+      "cm_per_px": null,
+      "keypoints": [],
+      "measurements": {},
+      "trait_scores": {},
+      "score": null,
+      "verdict": "N/A",
+      "debug_image_path": null,
+      "aruco_detected": false,
+      "marker_size_px": null
+    }
+  ],
+  "farmerID": "abcde"
+}
